@@ -1,0 +1,14 @@
+C:\Users\User\source\repos\Bookstore (-_-)'\bin\Debug\net6.0\Bookstore (-_-)'.exe
+C:\Users\User\source\repos\Bookstore (-_-)'\bin\Debug\net6.0\Bookstore (-_-)'.deps.json
+C:\Users\User\source\repos\Bookstore (-_-)'\bin\Debug\net6.0\Bookstore (-_-)'.runtimeconfig.json
+C:\Users\User\source\repos\Bookstore (-_-)'\bin\Debug\net6.0\Bookstore (-_-)'.dll
+C:\Users\User\source\repos\Bookstore (-_-)'\bin\Debug\net6.0\Bookstore (-_-)'.pdb
+C:\Users\User\source\repos\Bookstore (-_-)'\obj\Debug\net6.0\Bookstore (-_-)'.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\source\repos\Bookstore (-_-)'\obj\Debug\net6.0\Bookstore (-_-)'.AssemblyInfoInputs.cache
+C:\Users\User\source\repos\Bookstore (-_-)'\obj\Debug\net6.0\Bookstore (-_-)'.AssemblyInfo.cs
+C:\Users\User\source\repos\Bookstore (-_-)'\obj\Debug\net6.0\Bookstore (-_-)'.csproj.CoreCompileInputs.cache
+C:\Users\User\source\repos\Bookstore (-_-)'\obj\Debug\net6.0\Bookstore (-_-)'.dll
+C:\Users\User\source\repos\Bookstore (-_-)'\obj\Debug\net6.0\refint\Bookstore (-_-)'.dll
+C:\Users\User\source\repos\Bookstore (-_-)'\obj\Debug\net6.0\Bookstore (-_-)'.pdb
+C:\Users\User\source\repos\Bookstore (-_-)'\obj\Debug\net6.0\Bookstore (-_-)'.genruntimeconfig.cache
+C:\Users\User\source\repos\Bookstore (-_-)'\obj\Debug\net6.0\ref\Bookstore (-_-)'.dll
