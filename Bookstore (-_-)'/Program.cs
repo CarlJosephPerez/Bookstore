@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 class Program
@@ -13,12 +13,14 @@ class Program
             ConsoleUtils.PrintCentered("Welcome to the Online Bookstore");
             ConsoleUtils.PrintCentered("(1) Register User");
             ConsoleUtils.PrintCentered("(2) Login");
-            ConsoleUtils.PrintCentered("(3) Display Products");
-            ConsoleUtils.PrintCentered("(4) Order Books");
-            ConsoleUtils.PrintCentered("(5) View Order History");
-            ConsoleUtils.PrintCentered("(6) Sell a Book");
-            ConsoleUtils.PrintCentered("(7) Logout");
-            ConsoleUtils.PrintCentered("(8) Exit");
+            ConsoleUtils.PrintCentered("(3) Order Books");
+            ConsoleUtils.PrintCentered("(4) View Order History");
+            ConsoleUtils.PrintCentered("(5) Sell a Book");
+            ConsoleUtils.PrintCentered("(6) Logout");
+            ConsoleUtils.PrintCentered("(7) Search User");
+            ConsoleUtils.PrintCentered("(8) Search Book");
+            ConsoleUtils.PrintCentered("(9) Delete Account");
+            ConsoleUtils.PrintCentered("(10) Exit");
             string choice = ConsoleUtils.PromptCenteredInput("Enter your choice: ");
 
             switch (choice)
@@ -34,12 +36,6 @@ class Program
                     break;
                 case "3":
                     Console.Clear();
-                    bookstore.DisplayProducts();
-                    ConsoleUtils.PrintCentered("Press any key to the main menu...");
-                    Console.ReadKey();
-                    break;
-                case "4":
-                    Console.Clear();
                     if (bookstore.CurrentUser.Username != "guest")
                     {
                         OrderBooks(bookstore, bookstore.CurrentUser);
@@ -51,22 +47,40 @@ class Program
                     ConsoleUtils.PrintCentered("Press any key to the main menu...");
                     Console.ReadKey();
                     break;
-                case "5":
+                case "4":
                     Console.Clear();
                     bookstore.DisplayCurrentUserOrderHistory();
                     ConsoleUtils.PrintCentered("Press any key to the main menu...");
                     Console.ReadKey();
                     break;
-                case "6":
+                case "5":
                     Console.Clear();
                     bookstore.SellBook();
                     ConsoleUtils.PrintCentered("Press any key to the main menu...");
                     Console.ReadKey();
                     break;
-                case "7":
+                case "6":
                     bookstore.Logout();
                     break;
+                case "7":
+                    Console.Clear();
+                    bookstore.SearchUser();
+                    ConsoleUtils.PrintCentered("Press any key to return to the main menu...");
+                    Console.ReadKey();
+                    break;
                 case "8":
+                    Console.Clear();
+                    bookstore.SearchBook();
+                    ConsoleUtils.PrintCentered("Press any key to return to the main menu...");
+                    Console.ReadKey();
+                    break;
+                case "9":
+                    Console.Clear();
+                    bookstore.DeleteUser();
+                    ConsoleUtils.PrintCentered("Press any key to return to the main menu...");
+                    Console.ReadKey();
+                    break;
+                case "10":
                     bookstore.SaveUsersToFile();
                     Environment.Exit(0);
                     break;
@@ -154,7 +168,7 @@ class ConsoleUtils
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(String.Format("{0," + spaces + "}", text));
     }
-    public static string PromptCenteredInput(string prompt)
+    public static string PromptCenteredInput(string prompt, bool isPassword = false)
     {
         int consoleWidth = Console.WindowWidth;
         int promptLength = prompt.Length;
@@ -162,7 +176,34 @@ class ConsoleUtils
 
         Console.SetCursorPosition(leftPadding, Console.CursorTop);
         Console.Write(prompt);
+        if (isPassword)
+        {
+            return ReadPassword(leftPadding + promptLength);
+        }
         return Console.ReadLine();
+    }
+    private static string ReadPassword(int leftPosition)
+    {
+        string password = "";
+        while (true)
+        {
+            ConsoleKeyInfo key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Enter)
+                break;
+            if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+            {
+                password = password[..^1];
+                Console.SetCursorPosition(leftPosition + password.Length, Console.CursorTop);
+                Console.Write(" \b");
+            }
+            else if (!char.IsControl(key.KeyChar))
+            {
+                password += key.KeyChar;
+                Console.SetCursorPosition(leftPosition + password.Length - 1, Console.CursorTop);
+                Console.Write("*");
+            }
+        }
+        return password;
     }
 }
 class Product
@@ -407,11 +448,11 @@ class OnlineBookstore
         Console.Clear();
         ConsoleUtils.PrintCentered("Login to your account");
         string username = ConsoleUtils.PromptCenteredInput("Enter username: ");
-        string password = ConsoleUtils.PromptCenteredInput("Enter password: ");
+        string password = ConsoleUtils.PromptCenteredInput("Enter password: ", true);
+
         User user = users.Find(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
         if (user != null && user.ValidatePassword(password))
         {
-            
             currentUser = user;
             LogUserLogin(username);
             ConsoleUtils.PrintCentered("Login successful.");
@@ -615,6 +656,49 @@ class OnlineBookstore
                 return quantity;
             }
             ConsoleUtils.PrintCentered("Invalid input. Please enter a positive integer for the quantity.");
+        }
+    }
+    public void SearchUser()
+    {
+        string username = ConsoleUtils.PromptCenteredInput("Enter username to search: ");
+        User foundUser = users.Find(u => u.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
+        if (foundUser != null)
+        {
+            ConsoleUtils.PrintCentered($"User found: {foundUser.Username}");
+        }
+        else
+        {
+            ConsoleUtils.PrintCentered("User not found.");
+        }
+    }
+    public void SearchBook()
+    {
+        string title = ConsoleUtils.PromptCenteredInput("Enter book title to search: ");
+        Product foundBook = products.Find(p => p.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
+        if (foundBook != null)
+        {
+            ConsoleUtils.PrintCentered($"Book found: {foundBook.Title} - Price: ${foundBook.Price:F2}");
+        }
+        else
+        {
+            ConsoleUtils.PrintCentered("Book not found.");
+        }
+    }
+    public void DeleteUser()
+    {
+        ConsoleUtils.PrintCentered("Delete User");
+        string username = ConsoleUtils.PromptCenteredInput("Enter username of user to delete: ");
+
+        User userToDelete = users.Find(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+        if (userToDelete != null)
+        {
+            users.Remove(userToDelete);
+            ConsoleUtils.PrintCentered($"User '{username}' has been deleted.");
+            SaveUsersToFile();
+        }
+        else
+        {
+            ConsoleUtils.PrintCentered("User not found.");
         }
     }
 }
