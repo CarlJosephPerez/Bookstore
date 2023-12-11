@@ -160,6 +160,18 @@ class Program
 }
 class ConsoleUtils
 {
+    public static void PrintDialog(string text)
+    {
+        string topBottomBorder = "+---------------------------------+";
+        string padding = "|                                 |";
+
+        Console.WriteLine(topBottomBorder);
+        Console.WriteLine(padding);
+        Console.WriteLine("| " + text.PadRight(31) + " |");     
+        Console.WriteLine(padding);
+        Console.WriteLine(topBottomBorder);
+    }
+
     public static void PrintCentered(string text)
     {
         int consoleWidth = Console.WindowWidth;
@@ -660,45 +672,80 @@ class OnlineBookstore
     }
     public void SearchUser()
     {
-        string username = ConsoleUtils.PromptCenteredInput("Enter username to search: ");
-        User foundUser = users.Find(u => u.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
-        if (foundUser != null)
+        while (true)
         {
-            ConsoleUtils.PrintCentered($"User found: {foundUser.Username}");
-        }
-        else
-        {
-            ConsoleUtils.PrintCentered("User not found.");
+            Console.Clear();
+            ConsoleUtils.PrintCentered("Search User");
+            string username = ConsoleUtils.PromptCenteredInput("Enter username to search (or 'exit' to return to menu): ");
+
+            if (username.Equals("exit", StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
+            User foundUser = users.Find(u => u.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
+            if (foundUser != null)
+            {
+                ConsoleUtils.PrintCentered($"User found: {foundUser.Username}");
+            }
+            else
+            {
+                ConsoleUtils.PrintCentered("User not found.");
+            }
+            ConsoleUtils.PrintCentered("Press any key to continue...");
+            Console.ReadKey();
         }
     }
     public void SearchBook()
     {
-        string title = ConsoleUtils.PromptCenteredInput("Enter book title to search: ");
-        Product foundBook = products.Find(p => p.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
-        if (foundBook != null)
+        while (true)
         {
-            ConsoleUtils.PrintCentered($"Book found: {foundBook.Title} - Price: ${foundBook.Price:F2}");
-        }
-        else
-        {
-            ConsoleUtils.PrintCentered("Book not found.");
+            Console.Clear();
+            ConsoleUtils.PrintCentered("Search Book");
+            string title = ConsoleUtils.PromptCenteredInput("Enter book title to search (or 'exit' to return to menu): ");
+
+            if (title.Equals("exit", StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
+            Product foundBook = products.Find(p => p.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
+            if (foundBook != null)
+            {
+                ConsoleUtils.PrintCentered($"Book found: {foundBook.Title} - Price: ${foundBook.Price:F2}");
+            }
+            else
+            {
+                ConsoleUtils.PrintCentered("Book not found.");
+            }
+            ConsoleUtils.PrintCentered("Press any key to continue...");
+            Console.ReadKey();
         }
     }
     public void DeleteUser()
     {
-        ConsoleUtils.PrintCentered("Delete User");
-        string username = ConsoleUtils.PromptCenteredInput("Enter username of user to delete: ");
+        ConsoleUtils.PrintCentered("Delete User Account");
+        string username = ConsoleUtils.PromptCenteredInput("Enter your username: ");
+        string password = ConsoleUtils.PromptCenteredInput("Enter your password: ", true);
 
         User userToDelete = users.Find(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
-        if (userToDelete != null)
+        if (userToDelete != null && userToDelete.ValidatePassword(password))
         {
-            users.Remove(userToDelete);
-            ConsoleUtils.PrintCentered($"User '{username}' has been deleted.");
-            SaveUsersToFile();
+            string confirmation = ConsoleUtils.PromptCenteredInput("Are you sure you want to delete your account? (yes/no): ");
+            if (confirmation.Equals("yes", StringComparison.OrdinalIgnoreCase))
+            {
+                users.Remove(userToDelete);
+                ConsoleUtils.PrintCentered($"User account '{username}' has been deleted.");
+                SaveUsersToFile(); // Save changes to file
+            }
+            else
+            {
+                ConsoleUtils.PrintCentered("Account deletion cancelled.");
+            }
         }
         else
         {
-            ConsoleUtils.PrintCentered("User not found.");
+            ConsoleUtils.PrintCentered("Invalid username or password.");
         }
     }
 }
