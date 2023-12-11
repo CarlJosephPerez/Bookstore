@@ -10,7 +10,9 @@ class Program
         while (true)
         {
             Console.Clear();
-            ConsoleUtils.PrintCentered("Welcome to the Online Bookstore");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            ConsoleUtils.PrintTextWithBorder("Welcome to the Online Bookstore");
+            Console.ResetColor();
             ConsoleUtils.PrintCentered("(1) Register User");
             ConsoleUtils.PrintCentered("(2) Login");
             ConsoleUtils.PrintCentered("(3) Order Books");
@@ -84,7 +86,7 @@ class Program
                     bookstore.SaveUsersToFile();
                     Environment.Exit(0);
                     break;
-                case "slsrprt": 
+                case "slsrprt":
                     Console.Clear();
                     bookstore.DisplaySalesReport();
                     ConsoleUtils.PrintCentered("Press any key to return to the main menu...");
@@ -110,7 +112,7 @@ class Program
 
             if (title.ToLower() == "done")
             {
-                break; 
+                break;
             }
 
             Product selectedBook = bookstore.GetProductByTitle(title);
@@ -134,7 +136,7 @@ class Program
             string confirm = ConsoleUtils.PromptCenteredInput("Confirm the order (yes/no): ");
             if (confirm == "yes")
             {
-               
+
                 foreach (var item in cart.GetItems())
                 {
                     Product product = bookstore.GetProductByTitle(item.Title);
@@ -160,25 +162,63 @@ class Program
 }
 class ConsoleUtils
 {
-    public static void PrintDialog(string text)
-    {
-        string topBottomBorder = "+---------------------------------+";
-        string padding = "|                                 |";
-
-        Console.WriteLine(topBottomBorder);
-        Console.WriteLine(padding);
-        Console.WriteLine("| " + text.PadRight(31) + " |");     
-        Console.WriteLine(padding);
-        Console.WriteLine(topBottomBorder);
-    }
-
     public static void PrintCentered(string text)
     {
         int consoleWidth = Console.WindowWidth;
         int textLength = text.Length;
-        int spaces = (consoleWidth / 2) + (textLength / 2);
+        int leftPadding = (consoleWidth - textLength) / 2;
+        leftPadding = Math.Max(leftPadding, 0);
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine(String.Format("{0," + spaces + "}", text));
+        Console.SetCursorPosition(leftPadding, Console.CursorTop);
+        Console.WriteLine(text);
+    }
+    public static void PrintTextWithBorder(string text)
+    {
+        int consoleWidth = Console.WindowWidth;
+        int borderPadding = 4;
+        int maxTextWidth = consoleWidth - borderPadding;
+
+        string[] words = text.Split(' ');
+        List<string> lines = new List<string>();
+        StringBuilder line = new StringBuilder();
+        foreach (var word in words)
+        {
+            if (line.Length + word.Length < maxTextWidth)
+            {
+                line.Append(word + " ");
+            }
+            else
+            {
+                lines.Add(line.ToString().TrimEnd());
+                line.Clear();
+                line.Append(word + " ");
+            }
+        }
+
+        if (line.Length > 0)
+        {
+            lines.Add(line.ToString().TrimEnd());
+        }
+
+        int maxLineLength = lines.Max(l => l.Length);
+        int borderWidth = maxLineLength + 2;
+
+        string topBorder = "╔" + new string('═', borderWidth) + "╗";
+        string bottomBorder = "╚" + new string('═', borderWidth) + "╝";
+        string sideBorder = "║";
+
+        int boxLeftPadding = (consoleWidth - (borderWidth + 2)) / 2;
+
+        Console.SetCursorPosition(boxLeftPadding, Console.CursorTop);
+        Console.WriteLine(topBorder);
+        foreach (var lineText in lines)
+        {
+            string centeredLine = sideBorder + lineText.PadLeft((borderWidth + lineText.Length) / 2).PadRight(borderWidth) + sideBorder;
+            Console.SetCursorPosition(boxLeftPadding, Console.CursorTop);
+            Console.WriteLine(centeredLine);
+        }
+        Console.SetCursorPosition(boxLeftPadding, Console.CursorTop);
+        Console.WriteLine(bottomBorder);
     }
     public static string PromptCenteredInput(string prompt, bool isPassword = false)
     {
@@ -264,7 +304,7 @@ class User
     private List<Order> orderHistory = new List<Order>();
     public string GetUserDataForSaving()
     {
-        return $"{Username},{Password}"; 
+        return $"{Username},{Password}";
     }
     public User(string username, string password)
     {
@@ -280,7 +320,9 @@ class User
         Console.WriteLine($"Order history for {Username}:");
         foreach (var order in orderHistory)
         {
-            Console.WriteLine($"Order ID: {order.OrderId}, Total Cost: ${order.TotalCost:F2}");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            ConsoleUtils.PrintTextWithBorder($"Order ID: {order.OrderId}, Total Cost: ${order.TotalCost:F2}");
+            Console.ResetColor();
         }
     }
 
@@ -345,21 +387,26 @@ class OnlineBookstore
         {
             ConsoleUtils.PrintCentered("Register a new user");
             string username = ConsoleUtils.PromptCenteredInput("Enter username: ");
-            
+
 
             if (IsUsernameExists(username))
             {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
                 ConsoleUtils.PrintCentered("Username already in use. Please try a different username.");
+                Console.ResetColor();
                 continue;
             }
 
             string password = ConsoleUtils.PromptCenteredInput("Enter password: ");
             User newUser = new User(username, password);
             users.Add(newUser);
-            ConsoleUtils.PrintCentered($"User '{username}' registered successfully.");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            ConsoleUtils.PrintTextWithBorder($"User '{username}' registered successfully.");
+            Console.ResetColor();
             break;
         }
-        
+
     }
     public void RegisterUser(User user)
     {
@@ -411,7 +458,7 @@ class OnlineBookstore
                     var parts = line.Split(',');
                     if (parts.Length == 2)
                     {
-                        users.Add(new User(parts[0], parts[1])); 
+                        users.Add(new User(parts[0], parts[1]));
                     }
                 }
             }
@@ -467,12 +514,17 @@ class OnlineBookstore
         {
             currentUser = user;
             LogUserLogin(username);
-            ConsoleUtils.PrintCentered("Login successful.");
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Red;
+            ConsoleUtils.PrintTextWithBorder("Login successful.");
+            Console.ResetColor();
             Console.ReadKey();
         }
         else
         {
-            ConsoleUtils.PrintCentered("Invalid username or password.");
+            Console.ForegroundColor = ConsoleColor.Red;
+            ConsoleUtils.PrintTextWithBorder("Invalid username or password.");
+            Console.ResetColor();
             Console.ReadKey();
         }
     }
@@ -493,7 +545,7 @@ class OnlineBookstore
     public void Logout()
     {
         Console.Clear();
-        currentUser = new User("guest", ""); 
+        currentUser = new User("guest", "");
         ConsoleUtils.PrintCentered("You have been logged out.");
         Console.ReadKey();
     }
@@ -526,7 +578,7 @@ class OnlineBookstore
         int consoleWidth = Console.WindowWidth;
         int maxLineLength = lines.Max(line => line.Length);
         int leftPadding = (consoleWidth - maxLineLength) / 2;
-        leftPadding = Math.Max(leftPadding, 0); 
+        leftPadding = Math.Max(leftPadding, 0);
         foreach (string line in lines)
         {
             Console.WriteLine(String.Format("{0," + (leftPadding + line.Length) + "}", line));
@@ -541,9 +593,23 @@ class OnlineBookstore
         Order order = new Order(cart.GetItems());
         user.AddOrderToHistory(order);
         budget += order.TotalCost;
-        WriteOrderToFile(order, user.Username);
+
+        foreach (var item in cart.GetItems())
+        {
+            Product product = GetProductByTitle(item.Title);
+            if (product != null)
+            {
+                product.Quantity--;
+                if (product.Quantity == 0)
+                {
+                    products.Remove(product);
+                }
+            }
+        }
+
         SaveInventoryToFile();
     }
+
     private void WriteOrderToFile(Order order, string username)
     {
         string filePath = "C:\\Users\\User\\source\\repos\\Bookstore (-_-)'\\sales_report.txt";
@@ -571,7 +637,7 @@ class OnlineBookstore
     }
     public void DisplaySalesReport()
     {
-        string filePath = "C:\\Users\\User\\source\\repos\\Bookstore (-_-)'\\sales_report.txt"; 
+        string filePath = "C:\\Users\\User\\source\\repos\\Bookstore (-_-)'\\sales_report.txt";
         if (!File.Exists(filePath))
         {
             ConsoleUtils.PrintCentered("Sales report is not available.");
@@ -585,10 +651,10 @@ class OnlineBookstore
         ConsoleUtils.PrintCentered(header);
         ConsoleUtils.PrintCentered(separator);
 
-        foreach (string line in File.ReadLines(filePath).Skip(1)) 
+        foreach (string line in File.ReadLines(filePath).Skip(1))
         {
             var parts = line.Split(',');
-            if (parts.Length >= 4) 
+            if (parts.Length >= 4)
             {
                 string orderLine = $"| {parts[0],-7} | {parts[1],-11} | ${parts[2],-9} | {parts[3],-19} |";
                 ConsoleUtils.PrintCentered(orderLine);
@@ -610,16 +676,16 @@ class OnlineBookstore
         int quantity = PromptForBookQuantity();
         Product existingBook = GetProductByTitle(title);
 
-        ConsoleUtils.PrintCentered($"'{title}' added to the bookstore inventory.");
+        
         if (existingBook != null)
         {
             existingBook.Quantity += quantity;
-            existingBook.Price = price; 
+            existingBook.Price = price;
             ConsoleUtils.PrintCentered($"Updated quantity of '{title}'.");
         }
         else
         {
-            
+
             if (budget >= price * quantity)
             {
                 Product newBook = new Product(title, price, quantity);
@@ -736,7 +802,7 @@ class OnlineBookstore
             {
                 users.Remove(userToDelete);
                 ConsoleUtils.PrintCentered($"User account '{username}' has been deleted.");
-                SaveUsersToFile(); // Save changes to file
+                SaveUsersToFile(); 
             }
             else
             {
