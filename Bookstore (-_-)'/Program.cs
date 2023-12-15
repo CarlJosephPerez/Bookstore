@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 class Program
@@ -338,7 +338,13 @@ class Order
     public int OrderId { get; private set; }
     public List<Product> OrderedItems { get; private set; }
     public DateTime OrderDate { get; private set; }
-    public double TotalCost { get; private set; }
+    public double TotalCost
+    {
+        get
+        {
+            return OrderedItems.Sum(item => item.Price);
+        }
+    }
     public Order(List<Product> orderedItems)
     {
         OrderId = new Random().Next(1, 1000);
@@ -347,7 +353,6 @@ class Order
     public Order(int orderId, double totalCost, DateTime orderDate)
     {
         OrderId = orderId;
-        TotalCost = totalCost;
         OrderDate = orderDate;
         OrderedItems = new List<Product>(); 
     }
@@ -513,6 +518,7 @@ class OnlineBookstore
             ConsoleUtils.PrintTextWithBorder("Login successful.");
             Console.ResetColor();
             Console.ReadKey();
+            LoadOrderHistoryForUser(currentUser);
         }
         else
         {
@@ -627,7 +633,7 @@ class OnlineBookstore
     }
     private void LoadOrderHistoryForUser(User user)
     {
-        string filePath = "C:\\Users\\User\\source\\repos\\Bookstore (-_-)'\\path_to_order_history_file.txt"; 
+        string filePath = "C:\\Users\\User\\source\\repos\\Bookstore (-_-)'\\path_to_order_history_file.txt";
 
         try
         {
@@ -639,8 +645,11 @@ class OnlineBookstore
                     var parts = line.Split(',');
                     if (parts.Length >= 4 && parts[0] == user.Username)
                     {
-                        
-                        var order = new Order(int.Parse(parts[1]), double.Parse(parts[2]), DateTime.Parse(parts[3]));
+                        int orderId = int.Parse(parts[1]);
+                        double totalCost = double.Parse(parts[2]);
+                        DateTime orderDate = DateTime.Parse(parts[3]);
+
+                        var order = new Order(orderId, totalCost, orderDate);
                         user.AddOrderToHistory(order);
                     }
                 }
@@ -670,6 +679,7 @@ class OnlineBookstore
         if (currentUser.Username != "guest")
         {
             currentUser.DisplayOrderHistory();
+            LoadOrderHistoryForUser(currentUser);
         }
         else
         {
