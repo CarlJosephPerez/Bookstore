@@ -1,0 +1,4 @@
+The Great Gatsby,10.99,50
+To Kill a Mockingbird,12.99,40
+1984,9.99,23
+Pride and Prejudice,11.99,60
